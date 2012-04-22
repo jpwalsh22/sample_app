@@ -276,8 +276,23 @@ describe UsersController do
 		response.should have_selector("a", :href => "/users?page=2",
 		:content => "Next")
 		end
-       end
-   end
+      
+
+       describe "as an admin user" do
+			before(:each) do
+			@admin = Factory(:user, :email => "admin@example.com", :admin => true)
+			test_sign_in(@admin)
+			end
+
+			it "only dislays delete" do
+			get :index
+		                @users[0..2].each do |user|
+				response.should have_selector("li", :content => "delete")
+		                end
+			end
+       end 
+       end   
+    end
 
     describe "DELETE 'destroy'" do
 	before(:each) do
@@ -301,8 +316,8 @@ describe UsersController do
 
 	describe "as an admin user" do
 		before(:each) do
-		admin = Factory(:user, :email => "admin@example.com", :admin => true)
-		test_sign_in(admin)
+		@admin = Factory(:user, :email => "admin@example.com", :admin => true)
+		test_sign_in(@admin)
 		end
 
 		it "should destroy the user" do
@@ -315,7 +330,15 @@ describe UsersController do
 		delete :destroy, :id => @user
 		response.should redirect_to(users_path)
 		end
+
+ 		it "should not destroy yourself" do
+                   lambda do
+                   delete :destroy, :id => @admin
+		   response.should redirect_to(root_path)
+                   end
+                end       
 	end
-    end
+
+     end
 
 end

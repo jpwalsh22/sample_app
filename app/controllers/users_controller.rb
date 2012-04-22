@@ -11,19 +11,28 @@ class UsersController < ApplicationController
 
 
   def new
-    @user = User.new
-    @title = "Sign up"
+     if signed_in?
+       redirect_to root_path
+     else
+     @user = User.new
+     @title = "Sign up"
+     end
   end
 
   def create
-    @user = User.new(params[:user])
-    if @user.save
-        sign_in @user
-        flash[:success] = "Welcome to the Sample App!"
-	redirect_to @user
+    if signed_in?
+       redirect_to root_path
     else
-	@title = "Sign up"
-	render 'new'
+  	    @user = User.new(params[:user])
+	    if @user.save
+		sign_in @user
+		flash[:success] = "Welcome to the Sample App!"
+		redirect_to @user
+	    else
+	 	@title = "Sign up"
+		render 'new'
+
+	    end
     end
   end
 
@@ -45,7 +54,6 @@ class UsersController < ApplicationController
 
   def index
     	@title = "All users"
-#	@users = User.all
 	@users = User.paginate(:page => params[:page]) 
   end
 	
@@ -55,9 +63,14 @@ class UsersController < ApplicationController
   end
 
   def destroy
+	if current_user.admin?
+         flash[:notice] = "You cannot delete yourself."
+        else
 	User.find(params[:id]).destroy
 	flash[:success] = "User destroyed."
+	end	
 	redirect_to users_path
+        
   end
 
 private
@@ -71,7 +84,7 @@ private
   end
 
   def admin_user
-   	redirect_to(root_path) unless current_user.admin?
+   	redirect_to(root_path) if !current_user.admin? || current_user?(@user)
   end
 
 end
