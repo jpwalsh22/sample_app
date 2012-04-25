@@ -12,7 +12,9 @@ require 'digest'
 class User < ActiveRecord::Base
   attr_accessor :password
   attr_accessible :name, :email, :password, :password_confirmation
-
+ 
+  belongs_to :user
+  has_many :microposts, :dependent => :destroy
   
   email_regex = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
   validates(:name, :presence => true,
@@ -28,15 +30,21 @@ class User < ActiveRecord::Base
 
   before_save :encrypt_password
 
-  def has_password?(submitted_password)
-  encrypted_password == encrypt(submitted_password)
-  end 
+	def has_password?(submitted_password)
+	encrypted_password == encrypt(submitted_password)
+	end 
+
+	def feed
+	# This is preliminary. See Chapter 12 for the full implementation.
+	Micropost.where("user_id = ?", id)
+	end
 
 	def self.authenticate(email, submitted_password)
 	user = find_by_email(email)
 	return nil if user.nil?
 	return user if user.has_password?(submitted_password)
 	end
+
 	def self.authenticate_with_salt(id, cookie_salt)
 	user = find_by_id(id)
 	(user && user.salt == cookie_salt) ? user : nil
