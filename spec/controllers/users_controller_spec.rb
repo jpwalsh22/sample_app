@@ -41,6 +41,29 @@ describe UsersController do
 	response.should have_selector("span.content", :content => mp2.content)
 	end
 
+	it "should have pagination for microposts" do
+	mp1 = Factory(:micropost, :user => @user, :content => "Foo bar")
+	mp2 = Factory(:micropost, :user => @user, :content => "Baz quux")
+        get 'show', :id => @user
+        assert_not_nil assigns(:microposts)
+         response.should have_selector("tr")
+        response.should have_selector("td", :class => "micropost")
+	end
+
+	describe "signed in" do
+	before(:each) do	
+#	@user = Factory(:user)
+        test_sign_in(@user)
+        end
+	       it "should not show delete unless current user" do
+		mp1 = Factory(:micropost, :user => @user, :id => "1")
+		mp2 = Factory(:micropost, :user => @user, :id => "2")
+		get 'show', :id => @user
+#		response.should have_selector("h1", :content => @user.name)
+	        response.should have_selector("a", :content => "delete")
+       	       end
+       end
+ 
   end
 
   describe "GET 'new'" do
@@ -283,7 +306,8 @@ describe UsersController do
 		:content => "2")
 		response.should have_selector("a", :href => "/users?page=2",
 		:content => "Next")
-		end     
+		end    
+
        end   
     end
 

@@ -5,6 +5,7 @@ describe PagesController do
 
   before(:each) do
       @base_title = "Ruby on Rails Tutorial Sample App"
+      
       end
 
 describe "GET 'home'" do
@@ -18,6 +19,31 @@ describe "GET 'home'" do
       response.should have_selector("title",
                                     :content => @base_title + " | Home")
     end
+ 
+    
+    describe "signed in" do
+	before(:each) do	
+	@user = Factory(:user)
+        test_sign_in(@user)
+        end
+        it "should have side bar micropost counter" do
+   	get 'home'
+        response.should have_selector("span", :class => "microposts")
+        end
+
+	it "should pluralize micropost count" do 
+	get 'home' 
+	response.should have_selector('span', :content => "0 microposts") 
+	@mp1 = Factory(:micropost, :user => @user)  
+	get 'home'	
+	response.should have_selector('span', :content => "1 micropost") 
+	@mp2 = Factory(:micropost, :user => @user)
+	get 'home' 
+	response.should have_selector('span', :content => "2 microposts") 
+	end 
+
+    end
+
   end
 
   describe "GET 'contact'" do
