@@ -214,6 +214,22 @@ describe User do
 	@user.follow!(@followed)
 	@followed.followers.should include(@user)
 	end
+
+#    describe "destroy" do
+ #      before(:each) do
+#       @user = User.create(@attr)
+#	@mp1 = Factory(:micropost, :user => @user, :created_at => 1.day.ago)
+  #	@mp2 = Factory(:micropost, :user => @user, :created_at => 1.hour.ago)
+ #      end
+       it "should destroy relationships" do
+	  m1 = @user.follow!(@followed)
+          m2 = @followed.follow!(@user)   
+          @user.destroy   
+         [m1, m2].each do |relationship|     
+            Relationship.find_by_followed_id(relationship.followed_id).should be_nil   
+         end  
+       end
+  
     end
 
 end

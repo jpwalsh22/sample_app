@@ -10,11 +10,8 @@
 		<% end %>
 	</td>
 	<td class="sidebar round">
-		<strong>Name</strong> <%= @user.name %><br />
-		<strong>URL</strong> <%= link_to user_path(@user), @user %><br />
-		<strong>Microposts</strong> <%= @user.microposts.count %>
-		<%= render 'shared/stats' %>
-		<% unless @users.empty? %>
+		<%= render :partial => 'pages/user_data', :locals => { :user_input => @user } %>
+  	        <% unless @users.empty? %>
 		<% @users.each do |user| %>
 		<%= link_to gravatar_for(user, :size => 30), user %>
 		<% end %>
